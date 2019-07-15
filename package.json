@@ -8,6 +8,10 @@
   "scripts": {
     "setup": "yarn install && yarn install --prefix server && yarn install --prefix web",
     "server:dev": "npm run dev --prefix server",
-    "web:dev": "npm run start --prefix web"
+    "web:dev": "npm run start --prefix web",
+    "feathers": "cd server && feathers $@"
+  },
+  "dependencies": {
+    "@feathersjs/cli": "^3.9.0"
   }
 }
