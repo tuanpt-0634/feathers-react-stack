@@ -11,10 +11,10 @@ services:
       - ./:/home/node/app
     expose:
       - 3033 # Backend server (feathersjs)
-      - 3000 # Frontend server dev (react)
+      - 3003 # Frontend server dev (react)
     ports:
       - 3033:3033
-      - 3003:3000
+      - 3003:3003
 
   mongo:
     image: mongo:4
