@@ -1,0 +1,55 @@
+version: "2"
+
+services:
+  workspace:
+    image: node:10
+    restart: always
+    user: node
+    tty: true
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    expose:
+      - 3030 # Backend server (feathersjs)
+      - 3000 # Frontend server dev (react)
+    ports:
+      - 3033:3030
+      - 3003:3000
+
+  mongo:
+    image: mongo:4
+    restart: always
+    volumes:
+      - ./docker/mongo/data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+
+  mongo-express:
+    depends_on:
+      - mongo
+    image: mongo-express
+    restart: always
+    ports:
+      - 8083:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: secret
+
+  mail-server:
+    image: mailhog/mailhog
+    restart: always
+    expose:
+        - 1025 # SMTP Server to send mail
+        - 8025 # Web ui to check mail
+    ports:
+        - 8023:8025
+
+  redis:
+    image: redis:5
+    command: ["redis-server", "--appendonly", "yes"]
+    restart: always
+    volumes:
+      - ./docker/redis/data:/data
+    expose:
+      - 6379

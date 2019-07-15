@@ -1,0 +1,13 @@
+{
+  "name": "feathers-react-stack",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:tuanpt-0634/feathers-react-stack.git",
+  "author": "Tuan Pham <pham.thanh.tuan@sun-asterisk.com>",
+  "license": "MIT",
+  "scripts": {
+    "setup": "yarn install && yarn install --prefix server && yarn install --prefix web",
+    "server:dev": "npm run dev --prefix server",
+    "web:dev": "npm run start --prefix web"
+  }
+}
