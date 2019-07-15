@@ -10,10 +10,10 @@ services:
     volumes:
       - ./:/home/node/app
     expose:
-      - 3030 # Backend server (feathersjs)
+      - 3033 # Backend server (feathersjs)
       - 3000 # Frontend server dev (react)
     ports:
-      - 3033:3030
+      - 3033:3033
       - 3003:3000
 
   mongo:
