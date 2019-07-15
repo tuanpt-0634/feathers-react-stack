@@ -1,0 +1,118 @@
+# Hướng dẫn sử dụng docker trong project
+
+Hướng dẫn này chỉ áp dụng cho việc sử dụng docker để tạo môi trường phát triển ở local, tạo thuận lợi cho các thành viên trong team phát triển.
+
+Việc setup môi trường production cần phải có nhiều cải tiến, xem xét về hiệu năng, tài nguyên server và quy trình deploy khác nên không thể áp dụng chung một hướng dẫn được.
+
+## Một số khái niệm
+Để cho dễ hiểu, các khái niệm dưới đây được liên hệ với các khái niệm về máy ảo. Mặc dù cách triển khai là khác nhau nhưng đều có chung 1 tư tưởng.
+
+- Host machine: chỉ máy thật hay hệ điều hành trên máy tính thật
+- Container: máy ảo tạo ra bởi docker
+- Image: là một tập các lệnh thay đổi hệ điều hành cơ sở (ví dụ: cài thêm phần mềm, thiết lập lại cấu hình,...) để tạo ra container. Có thể hiểu đơn giản là nó giống như file ISO dùng để cài máy ảo (hệ điều hành). Từ image có thể tạo ra nhiều container.
+
+
+## Docker compose
+Docker compose giúp chúng ta quản lý các container trong project bằng cách định nghĩa các service trong file cấu hình yaml, thay vì phải quản lý, start, stop từng container.
+
+VD file yaml:
+```yml
+version: "2"
+
+services:
+  workspace:
+    image: node:10
+    restart: always
+    user: node
+    tty: true
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    expose:
+      - 3033 # Backend server (feathersjs)
+      - 3003 # Frontend server dev (react)
+    ports:
+      - 3033:3030
+      - 3003:3000
+```
+Dòng đầu tiên chỉ định version của file config để docker-compose có thể hiểu được. Version mới nhất mà docker compose support đó là version 3.
+
+Tiếp theo là đến khai báo các `services` tức là khai báo các bước để tạo ra container tương ứng. Theo ví dụ ở trên:
+- `image: node:10`: sử dụng image [`node`](https://hub.docker.com/_/node/), version `10` để tạo container
+- `restart: always`: restart container sau khi restart docker hoặc khởi động lại máy
+- `user: node`: user mặc định khi access vào container từ host machine
+- `working_dir: /home/node/app`: đường dẫn mặc định khi access vào container từ host machine
+- ```yml
+  volumes:
+    - ./:/home/node/app
+  ```
+  Mount thư mục hiện tại ở host machine vào thư mục `/home/node/app` trong máy ảo. Tức là nếu thư mục có thay đổi gì ở host machine thì thư mục trong container cũng tự động được đồng bộ và ngược lại.
+- ```yml
+  expose:
+    - 3033 # Backend server (feathersjs)
+    - 3003 # Frontend server dev (react)
+  ```
+  Chỉ dẫn cho biết trong container có service đang chạy ở cổng 3033 và 3003
+- ```yml
+  ports:
+    - 3033:3030
+    - 3003:3000
+  ```
+  Ánh xạ cổng ở host machine với cổng trong container. Tức là khi truy cập vào địa chỉ `localhost:3033` trên host machine, docker sẽ chuyển tiếp đến cổng `3030` trong container tương ứng.
+
+Sau khi định nghĩa xong file yml, tiếp theo là đến bước `up` để khởi tạo các container:
+```bash
+docker-compose up -d
+```
+Chú ý với option `-d` (`--detach`) thì sau khi tạo xong container thì các containers sẽ được chạy ngầm và không có ouput nào trên màn hình terminal. Trong quá trình debug chúng ta có thể bỏ option này đi để theo dõi quá trình các container được tạo ra như thế nào. Hoặc có thể dùng lệnh `docker-compose logs` để xem lại logs.
+
+Để kiểm tra có những service nào đang hoạt động, dùng lệnh:
+```bash
+docker-compose ps
+```
+=>
+```bash
+docker-compose ps
+               Name                       Command               State                       Ports
+---------------------------------------------------------------------------------------------------------------------
+feathers-react-stack_workspace_1    docker-entrypoint.sh node    Up    0.0.0.0:3003->3003/tcp, 0.0.0.0:3033->3033/tcp
+```
+Ở cột `Ports` chúng ta có mô tả ánh xạ port giữa host machine và container.
+
+Để access vào trong container, có 2 cách là thông qua container name (VD: `feathers-react-stack_workspace_1`) hoặc thông qua service name được khai báo trong file yaml (VD: `workspace`):
+```bash
+docker exec -it feathers-react-stack_workspace_1 bash
+docker exec feathers-react-stack_workspace_1 node -v
+```
+Hoặc theo cách thuận tiện hơn:
+```bash
+docker-compose exec workspace bash
+docker-compose exec workspace node -v
+```
+
+Ngoài container workspace để chạy node và react, chúng ta có thể cần thêm một số container sau:
+- `mongo`: mongodb server
+  ```yaml
+  mongo:
+    image: mongo:4
+    restart: always
+    volumes:
+      - ./docker/mongo/data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+  ```
+- `mongo-express`: web ui để access vào mongodb server (tương tự adminer hay phpmyadmin)
+- `mail-server`: mail server để gửi và xem mail. Ở môi trường dev, best practice là không dùng mail thật để test do đó ở đây chúng ta dùng `mailhog` để tạo ra một mail server dành riêng cho mục đích test
+- `redis`: redis server, có thể dùng cho việc cache data, session...
+
+Docker compose tạo ra một network riêng cho các container (một mạng LAN riêng chỉ bao gồm các máy ảo container), do đó trong container ta có thể truy cập đến các container khác thông qua hostname của từng container (hostname ở đây có thể là container id, container name hoặc service name định nghĩa trong file yaml), không cần biết ip của từng container. Chẳng hạn access vào container `workspace` và thực hiện ping:
+```
+docker-compose exec workspace bash
+ping feathers-react-stack_mongo_1
+ping mongo
+```
+Vì thế khi config địa chỉ database chúng ta chỉ cần tham chiếu bằng tên service, chẳng hạn:
+```bash
+DB_HOST=mongo
+```
