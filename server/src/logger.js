@@ -7,13 +7,8 @@ const config = configuration();
 const logger = createLogger({
   // To see more detailed errors, change this to 'debug'
   level: config().debug ? 'debug' : 'info',
-  format: format.combine(
-    format.splat(),
-    format.simple()
-  ),
-  transports: [
-    new transports.Console()
-  ],
+  format: format.combine(format.splat(), format.simple()),
+  transports: [new transports.Console()],
 });
 
 module.exports = logger;
