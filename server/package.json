@@ -27,6 +27,7 @@
     "eslint": "eslint src/. test/. --config .eslintrc.json",
     "dev": "nodemon src/",
     "start": "node src/",
+    "feathers": "feathers",
     "jest": "jest"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "winston": "^3.0.0"
   },
   "devDependencies": {
+    "@feathersjs/cli": "^3.9.0",
     "eslint": "^5.9.0",
     "jest": "^24.8.0",
     "nodemon": "^1.18.7",
