@@ -6,9 +6,11 @@
   "author": "Tuan Pham <pham.thanh.tuan@sun-asterisk.com>",
   "license": "MIT",
   "scripts": {
-    "setup": "yarn install && yarn install --prefix server && yarn install --prefix web",
-    "server:dev": "npm run dev --prefix server",
-    "web:dev": "npm run start --prefix web",
+    "setup-server": "cd server && yarn install",
+    "setup-web": "cd web && yarn install",
+    "setup": "yarn install && npm run setup-server && npm run setup-web",
+    "server:dev": "cd server && npm run dev",
+    "web:dev": "cd web && npm run start",
     "feathers": "cd server && feathers $@"
   },
   "dependencies": {

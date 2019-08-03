@@ -20,7 +20,9 @@ services:
     image: mongo:4
     restart: always
     volumes:
-      - ./docker/mongo/data:/data/db
+      - ./docker/data/mongo:/data/db
+    expose:
+      - 27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: secret
@@ -30,6 +32,8 @@ services:
       - mongo
     image: mongo-express
     restart: always
+    expose:
+      - 8081
     ports:
       - 8083:8081
     environment:
@@ -40,16 +44,23 @@ services:
     image: mailhog/mailhog
     restart: always
     expose:
-        - 1025 # SMTP Server to send mail
-        - 8025 # Web ui to check mail
+      - 1025 # SMTP Server to send mail
+      - 8025 # Web ui to check mail
     ports:
-        - 8023:8025
+      - 8023:8025
 
   redis:
     image: redis:5
     command: ["redis-server", "--appendonly", "yes"]
     restart: always
     volumes:
-      - ./docker/redis/data:/data
+      - ./docker/data/redis:/data
     expose:
       - 6379
+
+  swagger:
+    image: swaggerapi/swagger-editor
+    expose:
+      - 8080
+    ports:
+      - 8003:8080

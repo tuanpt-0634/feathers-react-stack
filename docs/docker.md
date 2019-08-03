@@ -1,16 +1,15 @@
 # Hướng dẫn sử dụng docker trong project
 
-Hướng dẫn này chỉ áp dụng cho việc sử dụng docker để tạo môi trường phát triển ở local, tạo thuận lợi cho các thành viên trong team phát triển.
+Hướng dẫn này áp dụng cho việc sử dụng docker để tạo môi trường dev ở local, tạo thuận lợi cho các thành viên trong team phát triển. Vì vậy, ở đây chúng ta thường sử dụng lại những **image** có sẵn để giảm thời gian build môi trường.
 
-Việc setup môi trường production cần phải có nhiều cải tiến, xem xét về hiệu năng, tài nguyên server và quy trình deploy khác nên không thể áp dụng chung một hướng dẫn được.
+Việc setup môi trường production cần xem xét về hiệu năng, tài nguyên server và quy trình deploy khác nên có thể không dùng docker hoặc phải build custom image cho phù hợp.
 
 ## Một số khái niệm
 Để cho dễ hiểu, các khái niệm dưới đây được liên hệ với các khái niệm về máy ảo. Mặc dù cách triển khai là khác nhau nhưng đều có chung 1 tư tưởng.
 
 - Host machine: chỉ máy thật hay hệ điều hành trên máy tính thật
 - Container: máy ảo tạo ra bởi docker
-- Image: là một tập các lệnh thay đổi hệ điều hành cơ sở (ví dụ: cài thêm phần mềm, thiết lập lại cấu hình,...) để tạo ra container. Có thể hiểu đơn giản là nó giống như file ISO dùng để cài máy ảo (hệ điều hành). Từ image có thể tạo ra nhiều container.
-
+- Image: là một tập các lệnh thay đổi hệ điều hành cơ sở (được định nghĩa trong file `Dockerfile`) (ví dụ: cài thêm phần mềm, thiết lập lại cấu hình,...) để tạo ra container. Có thể hiểu đơn giản là nó giống như file ISO dùng để cài máy ảo (hệ điều hành). Từ image có thể tạo ra nhiều container.
 
 ## Docker compose
 Docker compose giúp chúng ta quản lý các container trong project bằng cách định nghĩa các service trong file cấu hình yaml, thay vì phải quản lý, start, stop từng container.
@@ -105,6 +104,7 @@ Ngoài container workspace để chạy node và react, chúng ta có thể cầ
 - `mongo-express`: web ui để access vào mongodb server (tương tự adminer hay phpmyadmin)
 - `mail-server`: mail server để gửi và xem mail. Ở môi trường dev, best practice là không dùng mail thật để test do đó ở đây chúng ta dùng `mailhog` để tạo ra một mail server dành riêng cho mục đích test
 - `redis`: redis server, có thể dùng cho việc cache data, session...
+- `swagger`: swagger editor để xem api docs
 
 Docker compose tạo ra một network riêng cho các container (một mạng LAN riêng chỉ bao gồm các máy ảo container), do đó trong container ta có thể truy cập đến các container khác thông qua hostname của từng container (hostname ở đây có thể là container id, container name hoặc service name định nghĩa trong file yaml), không cần biết ip của từng container. Chẳng hạn access vào container `workspace` và thực hiện ping:
 ```
@@ -112,7 +112,31 @@ docker-compose exec workspace bash
 ping feathers-react-stack_mongo_1
 ping mongo
 ```
-Vì thế khi config địa chỉ database chúng ta chỉ cần tham chiếu bằng tên service, chẳng hạn:
-```bash
-DB_HOST=mongo
+Vì thế khi config địa chỉ database chúng ta chỉ cần tham chiếu bằng tên service, chẳng hạn config trong FeatherJS:
+```json
+{
+  "mongodb": "mongodb://mongo:27017/my_db"
+}
+```
+
+> Note: có thể sử dụng docker mà không cần `sudo` bằng cách add user hiện tại vào group `docker`
+> ```bash
+> sudo groupadd docker
+> sudo usermod -aG docker $USER
+> ```
+> Logout và login lại để update lại hệ thống.
+> Reference: https://docs.docker.com/install/linux/linux-postinstall/
+
+Thường thì chúng ta sẽ có 1 file `docker-compose.yml` chung cho project để đảm bảo môi trường dev giống nhau, tuy nhiên vẫn có trường hợp bị xung đột cổng ở máy dev.
+
+Nếu không muốn sửa file `docker-compose.yml` (vì ảnh hưởng đến git changes), chúng ta có thể tạo file có tên `docker-compose.override.yml`, mặc định `docker-compose` sẽ đọc 2 file `docker-compose.yml` và `docker-compose.override.yml` và merge các config lại trước khi thực hiện start container.
+
+Ví dụ thay đổi ports (`docker-compose.override.yml`):
+```yaml
+version: "2"
+
+services:
+  mongo-express:
+    ports:
+      - 8999:8081
 ```
