@@ -1,19 +1,30 @@
 version: "2"
 
 services:
-  workspace:
+  server:
     image: node:10
     restart: always
     user: node
     tty: true
     working_dir: /home/node/app
     volumes:
-      - ./:/home/node/app
+      - ./server:/home/node/app
     expose:
       - 3033 # Backend server (feathersjs)
-      - 3003 # Frontend server dev (react)
     ports:
       - 3033:3033
+
+  web:
+    image: node:10
+    restart: always
+    user: node
+    tty: true
+    working_dir: /home/node/app
+    volumes:
+      - ./web:/home/node/app
+    expose:
+      - 3003 # Frontend server dev (react)
+    ports:
       - 3003:3003
 
   mongo:
