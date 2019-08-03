@@ -1,8 +1,6 @@
 # Docker
-docker-compose.yml
 docker-compose.override.yml
-docker/mongo
-docker/redis
+docker/data
 
 # Node
 node_modules
