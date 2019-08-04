@@ -9,6 +9,7 @@ docker-compose up -d
 
 Execute a command (npm, node...) in workspace:
 ```bash
+docker-compose exec workspace bash
 docker-compose exec workspace yarn setup
 docker-compose exec workspace yarn server:dev
 docker-compose exec workspace yarn web:dev
