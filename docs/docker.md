@@ -28,11 +28,11 @@ services:
     volumes:
       - ./:/home/node/app
     expose:
-      - 3033 # Backend server (feathersjs)
-      - 3003 # Frontend server dev (react)
+      - 3030 # Backend server (feathersjs)
+      - 3000 # Frontend server dev (react)
     ports:
       - 3033:3030
-      - 3003:3000
+      - 3003:3003
 ```
 Dòng đầu tiên chỉ định version của file config để docker-compose có thể hiểu được. Version mới nhất mà docker compose support đó là version 3.
 
@@ -48,10 +48,10 @@ Tiếp theo là đến khai báo các `services` tức là khai báo các bướ
   Mount thư mục hiện tại ở host machine vào thư mục `/home/node/app` trong máy ảo. Tức là nếu thư mục có thay đổi gì ở host machine thì thư mục trong container cũng tự động được đồng bộ và ngược lại.
 - ```yml
   expose:
-    - 3033 # Backend server (feathersjs)
-    - 3003 # Frontend server dev (react)
+    - 3030 # Backend server (feathersjs)
+    - 3000 # Frontend server dev (react)
   ```
-  Chỉ dẫn cho biết trong container có service đang chạy ở cổng 3033 và 3003
+  Chỉ dẫn cho biết trong container có service đang chạy ở cổng 3030 và 3000
 - ```yml
   ports:
     - 3033:3030
@@ -74,7 +74,7 @@ docker-compose ps
 docker-compose ps
                Name                       Command               State                       Ports
 ---------------------------------------------------------------------------------------------------------------------
-feathers-react-stack_workspace_1    docker-entrypoint.sh node    Up    0.0.0.0:3003->3003/tcp, 0.0.0.0:3033->3033/tcp
+feathers-react-stack_workspace_1    docker-entrypoint.sh node    Up    0.0.0.0:3003->3000/tcp, 0.0.0.0:3033->3030/tcp
 ```
 Ở cột `Ports` chúng ta có mô tả ánh xạ port giữa host machine và container.
 
