@@ -7,8 +7,10 @@ services:
     user: node
     tty: true
     working_dir: /home/node/app
+    command: /usr/local/bin/start-server.sh
     volumes:
       - ./server:/home/node/app
+      - ./docker/scripts/start-server.sh:/usr/local/bin/start-server.sh
     expose:
       - 3033 # Backend server (feathersjs)
     ports:
@@ -20,8 +22,10 @@ services:
     user: node
     tty: true
     working_dir: /home/node/app
+    command: /usr/local/bin/start-web.sh
     volumes:
       - ./web:/home/node/app
+      - ./docker/scripts/start-web.sh:/usr/local/bin/start-web.sh
     expose:
       - 3003 # Frontend server dev (react)
     ports:

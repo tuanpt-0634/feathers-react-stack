@@ -1,3 +1,5 @@
 # Docker
 docker-compose.override.yml
 docker/data
+
+.vscode

@@ -11,9 +11,16 @@ Execute a command (npm, node...) in workspace:
 ```bash
 # Run command in "server" container
 ./bin/server bash
-./bin/server yarn dev
 
 # Run command in "web" container
 ./bin/web bash
-./bin/web yarn start
+```
+
+Restart server:
+```bash
+# Restart "server" container (Feathers)
+docker-compose restart server
+
+# Restart "web" container (React)
+docker-compose restart web
 ```
