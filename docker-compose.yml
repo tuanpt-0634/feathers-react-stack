@@ -2,7 +2,11 @@ version: "2"
 
 services:
   server:
-    image: node:10
+    build:
+      context: ./docker/images/node
+      args:
+        HOST_UID: ${HOST_UID}
+        HOST_GID: ${HOST_GID}
     restart: always
     user: node
     tty: true
@@ -17,7 +21,11 @@ services:
       - 3033:3033
 
   web:
-    image: node:10
+    build:
+      context: ./docker/images/node
+      args:
+        HOST_UID: ${HOST_UID}
+        HOST_GID: ${HOST_GID}
     restart: always
     user: node
     tty: true
@@ -69,6 +77,7 @@ services:
 
   swagger:
     image: swaggerapi/swagger-editor
+    restart: always
     expose:
       - 8080
     ports:
