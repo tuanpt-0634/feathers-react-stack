@@ -23,12 +23,11 @@
     "yarn": ">= 0.18.0"
   },
   "scripts": {
-    "test": "yarn run eslint && NODE_ENV=test yarn run jest",
+    "test": "yarn run eslint && NODE_ENV=test jest --coverage",
     "eslint": "eslint src/. test/. --config .eslintrc.json",
     "dev": "nodemon src/",
     "start": "node src/",
-    "feathers": "feathers",
-    "jest": "jest"
+    "feathers": "feathers"
   },
   "dependencies": {
     "@feathersjs/configuration": "^2.0.4",
