@@ -30,6 +30,9 @@
     "feathers": "feathers"
   },
   "dependencies": {
+    "@feathersjs/authentication": "^2.1.13",
+    "@feathersjs/authentication-jwt": "^2.0.7",
+    "@feathersjs/authentication-local": "^1.2.7",
     "@feathersjs/configuration": "^2.0.4",
     "@feathersjs/errors": "^3.3.4",
     "@feathersjs/express": "^1.2.7",
@@ -37,12 +40,16 @@
     "@feathersjs/socketio": "^3.2.7",
     "compression": "^1.7.3",
     "cors": "^2.8.5",
+    "feathers-mongoose": "^7.0.0",
     "helmet": "^3.15.0",
+    "mongodb-core": "^3.2.7",
+    "mongoose": "^5.3.12",
     "serve-favicon": "^2.5.0",
     "winston": "^3.0.0"
   },
   "devDependencies": {
     "@feathersjs/cli": "^3.9.0",
+    "@shelf/jest-mongodb": "^1.1.0",
     "eslint": "^5.9.0",
     "jest": "^24.8.0",
     "nodemon": "^1.18.7",
