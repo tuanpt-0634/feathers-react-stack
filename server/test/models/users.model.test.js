@@ -1,33 +1,19 @@
-const mongoose = require('mongoose');
-
 describe('insert', () => {
-  let connection;
   let userModel;
 
   beforeAll(async () => {
-    // Setup mongodb in-memory db connection
-    connection = await mongoose.connect(global.__MONGO_URI__, {
-      useNewUrlParser: true,
-    });
-
-    // Mock app.get, which is called is users.model.js to return in-memory db
-    jest.mock('../../src/app', () => ({
-      get: jest.fn(),
-    }));
     const app = require('../../src/app');
-    app.get.mockReturnValueOnce(mongoose);
 
-    userModel = require('../../src/models/users.model')(app);
+    userModel = app.get('mongooseClient').model('User');
   });
 
-  afterAll(async () => {
-    // Close connection after end
-    await connection.close();
-  });
-
-  afterEach(() => {
+  afterEach(async () => {
     // Before each test, drop collection to reset db to empty state
-    userModel.collection.drop();
+    await userModel.collection.drop();
+
+    // Tricky solution for issue of mongodb-memory-server
+    // https://github.com/nodkz/mongodb-memory-server/issues/102
+    await userModel.ensureIndexes();
   });
 
   it('save with valid data', async () => {
@@ -42,5 +28,31 @@ describe('insert', () => {
 
     expect(insertedUser.name).toEqual(mockUser.name);
     expect(insertedUser._id).not.toBe(null);
+  });
+
+  it('cannot create user with duplicate email', async () => {
+    expect.assertions(1);
+
+    const mockUser = {
+      name: 'test',
+      password: '123',
+      email: 'test@example.com',
+    };
+
+    await userModel.create(mockUser);
+
+    const user = {
+      name: 'thu',
+      password: '123',
+      email: 'test@example.com',
+    };
+
+    try {
+      await userModel.create(user);
+    } catch (err) {
+      expect(err.errmsg).toEqual(
+        'E11000 duplicate key error dup key: { : "test@example.com" }',
+      );
+    }
   });
 });
